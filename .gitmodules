@@ -1,0 +1,9 @@
+[submodule "lib/timer"]
+	path = lib/timer
+	url = https://github.com/dniklaus/arduino-utils-timer.git
+[submodule "lib/debug-cli"]
+	path = lib/debug-cli
+	url = https://github.com/ERNICommunity/debug-cli.git
+[submodule "lib/debug-trace"]
+	path = lib/debug-trace
+	url = https://github.com/ERNICommunity/dbg-trace.git
