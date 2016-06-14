@@ -8,8 +8,8 @@
 #include <Arduino.h>
 
 // PlatformIO libraries
-#include <SerialCommand.h>
-#include <ThingSpeak.h>
+#include <SerialCommand.h>  // pio lib install 173, lib details see https://github.com/kroimon/Arduino-SerialCommand
+#include <ThingSpeak.h>     // pio lib install 550, lib details see https://github.com/mathworks/thingspeak-arduino
 
 // private libraries
 #include <Timer.h>
