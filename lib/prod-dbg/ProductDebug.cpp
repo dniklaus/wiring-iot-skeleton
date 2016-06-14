@@ -7,10 +7,15 @@
 
 #include "ProductDebug.h"
 
+#include <Arduino.h>
+#ifdef ESP8266
+#include <ESP8266WiFi.h>
+#endif
 #include <Timer.h>
 #include <SerialCommand.h>
 #include <DbgCliNode.h>
 #include <DbgCliTopic.h>
+#include <DbgCliCommand.h>
 #include <DbgTraceContext.h>
 #include <DbgTracePort.h>
 #include <DbgTraceLevel.h>
@@ -25,6 +30,23 @@ extern "C"
 #else
 #include <RamUtils.h>
 #endif
+
+//-----------------------------------------------------------------------------
+// Print MAC Address
+//-----------------------------------------------------------------------------
+class DbgCli_Cmd_WifiMac : public DbgCli_Command
+{
+public:
+  DbgCli_Cmd_WifiMac()
+  : DbgCli_Command(new DbgCli_Topic(DbgCli_Node::RootNode(), "wifi", "WiFi debug commands"), "mac", "Print MAC Address.")
+  { }
+
+  void execute(unsigned int argc, const char** args, unsigned int idxToFirstArgToHandle)
+  {
+    Serial.print("Wifi MAC: ");
+    Serial.println(WiFi.macAddress().c_str());
+  }
+};
 
 //-----------------------------------------------------------------------------
 // Free Heap Logger
@@ -70,6 +92,13 @@ void setupDebugEnv()
     sCmd->addCommand("hello", sayHello);        // Echos the string argument back
     sCmd->setDefaultHandler(unrecognized);      // Handler for command that isn't matched  (says "What?")
   }
+
+  //-----------------------------------------------------------------------------
+  // Print MAC Address
+  //-----------------------------------------------------------------------------
+#ifdef ESP8266
+  new DbgCli_Cmd_WifiMac();
+#endif
 
   //---------------------------------------------------------------------------
   // Debug Trace

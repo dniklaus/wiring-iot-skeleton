@@ -6,6 +6,7 @@
  */
 
 #include <Arduino.h>
+#include <ESP8266WiFi.h>
 
 // PlatformIO libraries
 #include <SerialCommand.h>  // pio lib install 173, lib details see https://github.com/kroimon/Arduino-SerialCommand
