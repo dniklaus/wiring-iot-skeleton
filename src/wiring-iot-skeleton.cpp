@@ -6,8 +6,9 @@
  */
 
 #include <Arduino.h>
+#ifdef ESP8266
 #include <ESP8266WiFi.h>
-
+#endif
 // PlatformIO libraries
 #include <SerialCommand.h>  // pio lib install 173, lib details see https://github.com/kroimon/Arduino-SerialCommand
 #include <ThingSpeak.h>     // pio lib install 550, lib details see https://github.com/mathworks/thingspeak-arduino
@@ -28,6 +29,12 @@ SerialCommand* sCmd = 0;
 void setup()
 {
   setupDebugEnv();
+#ifdef ESP8266
+  //-----------------------------------------------------------------------------
+  // ThingSpeak Client
+  //-----------------------------------------------------------------------------
+  ThingSpeak.begin(*(new WiFiClient()));
+#endif
 }
 
 void loop()
