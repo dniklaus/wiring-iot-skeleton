@@ -71,7 +71,6 @@ public:
   }
 };
 
-
 class DbgCli_Cmd_WifiDis : public DbgCli_Command
 {
 public:
@@ -81,7 +80,22 @@ public:
 
   void execute(unsigned int argc, const char** args, unsigned int idxToFirstArgToHandle)
   {
-    WiFi.disconnect(false);
+    if (argc - idxToFirstArgToHandle > 0)
+    {
+      printUsage();
+    }
+    else
+    {
+      const bool DO_NOT_SET_wifioff = false;
+      WiFi.disconnect(DO_NOT_SET_wifioff);
+      Serial.println("WiFi is disconnected now.");
+    }
+  }
+
+  void printUsage()
+  {
+    Serial.println(getHelpText());
+    Serial.println("Usage: dbg wifi dis");
   }
 };
 
@@ -101,6 +115,7 @@ public:
     else
     {
       WiFi.begin(args[idxToFirstArgToHandle], args[idxToFirstArgToHandle+1]);
+      Serial.println("WiFi is connecting now.");
     }
   }
 
