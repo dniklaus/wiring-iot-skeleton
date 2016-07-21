@@ -28,7 +28,7 @@ It demonstrates the usage of the following copmonents:
   1. Create a directory where your Eclipse Workspace will be stored and where this project shall be cloned into. E.g. `C:\git\pio-prj`
   2. Clone this repository recursively into the folder you created before, `git clone --recursive git@github.com:dniklaus/wiring-iot-skeleton.git`
   3. Open a command shell in the just cloned project folder, i.e in `C:\git\pio-prj\wiring-iot-skeleton`
-  4. Run the command `pio init -b huzzah --ide eclipse`
+  4. Run the command `pio init -b nodemcuv2 --ide eclipse`
   5. Run the command `pio run`
 
 ## Open project in Eclipse CDT
