@@ -81,7 +81,7 @@ This chapter lists all the libraries this project is using.
 
 ### PlatformIO Libraries
 |ID|Name|URL|Description|
-|--|:---|:--|:----------|
+|:--|:-------|:----------------|:-----------------------|
 |173|SerialCommand|https://github.com/kroimon/Arduino-SerialCommand|A Wiring/Arduino library to tokenize and parse commands received over a serial port.|
 |550|ThingSpeak|https://github.com/mathworks/thingspeak-particle|"MathWorks": ThingSpeak Communication Library for Arduino & ESP8266|
 
