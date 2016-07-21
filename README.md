@@ -74,7 +74,7 @@ Load the _hterm-com18.cfg_ file to configure HTerm properly. Alter the COM18 acc
 ### Trace Port
 |Trace Port|default level|functionality|
 |----------|-------------|:------------|
-|heap|info|automatically print free heap memory [bytes], every 10 seconds|
+|heap|info|if set to debug level: automatically print free heap memory [bytes], every 10 seconds|
 
 ## Library Usage
 This chapter lists all the libraries this project is using.
