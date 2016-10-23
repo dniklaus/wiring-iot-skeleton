@@ -25,12 +25,14 @@
 #include <DbgTraceLevel.h>
 #include <ProductDebug.h>
 #include <MqttClientController.h>
+#include <PubSubClientWrapper.h>
 
 #define MQTT_SERVER  "iot.eclipse.org"
 
 SerialCommand*        sCmd = 0;
+#ifdef ESP8266
 WiFiClient*           wifiClient = 0;
-MqttClientController* mqttClientCtrl = 0;
+#endif
 
 void setup()
 {
@@ -49,8 +51,8 @@ void setup()
   //-----------------------------------------------------------------------------
   // MQTT Client
   //-----------------------------------------------------------------------------
-  mqttClientCtrl = new MqttClientController(wifiClient, MQTT_SERVER);
-  mqttClientCtrl->setShallConnect(true);
+  MqttClientController::Instance()->assignMqttClientWrapper(new PubSubClientWrapper(*(wifiClient), MQTT_SERVER));
+//  MqttClientController::Instance()->setShallConnect(true);
 #endif
 }
 
@@ -60,6 +62,6 @@ void loop()
   {
     sCmd->readSerial();     // process serial commands
   }
-  mqttClientCtrl->loop();
+  MqttClientController::Instance()->loop();
   yield();                  // process Timers
 }
