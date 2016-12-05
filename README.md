@@ -55,9 +55,13 @@ Load the _hterm-com18.cfg_ file to configure HTerm properly. Alter the COM18 acc
              list             Show all available trace levels (and the currenntly selected)
        wifi                   WiFi debug commands
          mac                  show WiFi MAC address
+         nets
          stat                 Show WiFi status
          dis                  Disconnect WiFi
          con <SSID> <Pass>    Connect WiFi
+       mqtt
+         con
+         dis
        thgspk                 ThingSpeak debug commands
          chid <channelId>     Set ThingSpeak Channel ID.
          key <APIKey>         Set ThingSpeak API key.
