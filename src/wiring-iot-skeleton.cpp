@@ -36,6 +36,9 @@ WiFiClient*           wifiClient = 0;
 
 void setup()
 {
+  pinMode(BUILTIN_LED, OUTPUT);
+  digitalWrite(BUILTIN_LED, 0);
+
   setupDebugEnv();
 #ifdef ESP8266
   //-----------------------------------------------------------------------------
@@ -52,7 +55,7 @@ void setup()
   // MQTT Client
   //-----------------------------------------------------------------------------
   MqttClientController::Instance()->assignMqttClientWrapper(new PubSubClientWrapper(*(wifiClient), MQTT_SERVER));
-//  MqttClientController::Instance()->setShallConnect(true);
+  MqttClientController::Instance()->setShallConnect(true);
 #endif
 }
 
