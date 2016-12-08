@@ -54,7 +54,7 @@ void setup()
   //-----------------------------------------------------------------------------
   // MQTT Client
   //-----------------------------------------------------------------------------
-  MqttClientController::Instance()->assignMqttClientWrapper(new PubSubClientWrapper(*(wifiClient), MQTT_SERVER));
+  MqttClientController::Instance()->assignMqttClientWrapper(new PubSubClientWrapper(*(wifiClient), MQTT_SERVER), new PubSubClientCallbackAdapter());
   MqttClientController::Instance()->setShallConnect(true);
 #endif
 }
