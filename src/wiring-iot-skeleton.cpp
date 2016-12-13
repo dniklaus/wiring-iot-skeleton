@@ -37,7 +37,7 @@ WiFiClient*           wifiClient = 0;
 void setup()
 {
   pinMode(BUILTIN_LED, OUTPUT);
-  digitalWrite(BUILTIN_LED, 0);
+  digitalWrite(BUILTIN_LED, 1);
 
   setupDebugEnv();
 #ifdef ESP8266
