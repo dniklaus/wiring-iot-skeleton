@@ -57,16 +57,16 @@ Load the _hterm-com18.cfg_ file to configure HTerm properly. Alter the COM18 acc
              get              Show the current trace level
              set <level>      Set a particular trace level
              list             Show all available trace levels (and the currenntly selected)
-         lanmon               
-         mqttctrl
-         mqttrx
+         lanmon               Trace Port: LAN connection monitor                
+         mqttctrl             Trace Port: MQTT client control
+         mqttrx               Trace Port: Received Messages from MQTT subscriptions 
        wifi                   WiFi debug commands
          mac                  show WiFi MAC address
          nets                 list available WLAN networks
          stat                 Show WiFi status
          dis                  Disconnect WiFi
          con <SSID> <Pass>    Connect WiFi
-       mqtt
+       mqtt                   MQTT client control commands
          con                  Connect to broker
          dis                  Disconnect from broker
          sub <Topic>          Subscribe to MQTT Topic
@@ -90,7 +90,7 @@ Load the _hterm-com18.cfg_ file to configure HTerm properly. Alter the COM18 acc
 |----------|-------------|:------------|
 |heap|info|if set to debug level: automatically print free heap memory [bytes], every 10 seconds|
 |lanmon|info|if set to debug level: show WLAN connect / disconnect status updates|
-|mqttctrl|info||
+|mqttctrl|info|if set to debug: show MQTT Client connection status|
 |mqttrx|info|if set to degug level: show subscribed incoming messages|
 
 ## Library Usage
