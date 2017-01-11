@@ -26,6 +26,8 @@
 #include <ProductDebug.h>
 #include <MqttClientController.h>
 #include <PubSubClientWrapper.h>
+#include <MqttMsgHandler.h>
+#include <string.h>
 
 #define MQTT_SERVER  "iot.eclipse.org"
 
@@ -33,6 +35,49 @@ SerialCommand*        sCmd = 0;
 #ifdef ESP8266
 WiFiClient*           wifiClient = 0;
 #endif
+
+class TestLedMqttMsgHandler : public MqttMsgHandler
+{
+public:
+  TestLedMqttMsgHandler(const char* topic)
+  : MqttMsgHandler(topic)
+  { }
+
+  void handleMessage(const char* topic, byte* payload, unsigned int length)
+  {
+    if (isMyTopic(topic))
+    {
+      // take responsibility
+      char msg[length+1];
+      memcpy(msg, payload, length);
+      msg[length] = 0;
+
+      Serial.print("LED test handler, topic: ");
+      Serial.println(getTopic());
+      Serial.print(", msg: ");
+      Serial.println(msg);
+
+      bool pinState = atoi(msg);
+      digitalWrite(BUILTIN_LED, !pinState);
+    }
+    else if (0 != next())
+    {
+      // delegate
+      Serial.println("LED test handler has to delegate the job.");
+      next()->handleMessage(topic, payload, length);
+    }
+    else
+    {
+      Serial.println("LED test handler is the last in the chain");
+    }
+  }
+
+private:
+  // forbidden default functions
+  TestLedMqttMsgHandler();                                              // default constructor
+  TestLedMqttMsgHandler& operator = (const TestLedMqttMsgHandler& src); // assignment operator
+  TestLedMqttMsgHandler(const TestLedMqttMsgHandler& src);              // copy constructor
+};
 
 void setup()
 {
@@ -56,6 +101,7 @@ void setup()
   //-----------------------------------------------------------------------------
   MqttClientController::Instance()->assignMqttClientWrapper(new PubSubClientWrapper(*(wifiClient), MQTT_SERVER), new PubSubClientCallbackAdapter());
   MqttClientController::Instance()->setShallConnect(true);
+  MqttClientController::Instance()->subscribe(new TestLedMqttMsgHandler("/test/led"));
 #endif
 }
 
