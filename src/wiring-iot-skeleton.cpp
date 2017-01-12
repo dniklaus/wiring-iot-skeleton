@@ -53,7 +53,7 @@ public:
       msg[length] = 0;
 
       Serial.print("LED test handler, topic: ");
-      Serial.println(getTopic());
+      Serial.print(getTopic());
       Serial.print(", msg: ");
       Serial.println(msg);
 
