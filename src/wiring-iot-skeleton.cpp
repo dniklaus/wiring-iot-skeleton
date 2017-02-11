@@ -8,6 +8,7 @@
 #include <Arduino.h>
 #ifdef ESP8266
 #include <ESP8266WiFi.h>
+#include <WiFiClient.h>
 #endif
 // PlatformIO libraries
 #include <PubSubClient.h>   // pio lib install 89,  lib details see https://github.com/knolleary/PubSubClient
@@ -24,16 +25,18 @@
 #include <DbgPrintConsole.h>
 #include <DbgTraceLevel.h>
 #include <ProductDebug.h>
+#include <MqttClient.h>
 #include <MqttClientController.h>
 #include <PubSubClientWrapper.h>
 #include <MqttMsgHandler.h>
 #include <string.h>
 
-#define MQTT_SERVER  "iot.eclipse.org"
+#define MQTT_SERVER "iot.eclipse.org"
 
 SerialCommand*        sCmd = 0;
 #ifdef ESP8266
 WiFiClient*           wifiClient = 0;
+MqttClient*           mqttClient = 0;
 #endif
 
 class TestLedMqttMsgHandler : public MqttMsgHandler
@@ -43,7 +46,7 @@ public:
   : MqttMsgHandler(topic)
   { }
 
-  void handleMessage(const char* topic, byte* payload, unsigned int length)
+  void handleMessage(const char* topic, unsigned char* payload, unsigned int length)
   {
     if (isMyTopic(topic))
     {
@@ -99,9 +102,8 @@ void setup()
   //-----------------------------------------------------------------------------
   // MQTT Client
   //-----------------------------------------------------------------------------
-  MqttClientController::Instance()->assignMqttClientWrapper(new PubSubClientWrapper(*(wifiClient), MQTT_SERVER), new PubSubClientCallbackAdapter());
-  MqttClientController::Instance()->setShallConnect(true);
-  MqttClientController::Instance()->subscribe(new TestLedMqttMsgHandler("/test/led"));
+  mqttClient = new MqttClient(MQTT_SERVER);
+  mqttClient->subscribe(new TestLedMqttMsgHandler("/test/led"));
 #endif
 }
 
