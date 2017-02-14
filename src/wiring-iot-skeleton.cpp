@@ -113,6 +113,6 @@ void loop()
   {
     sCmd->readSerial();     // process serial commands
   }
-  MqttClientController::Instance()->loop();
+  mqttClient->loop();
   yield();                  // process Timers
 }
