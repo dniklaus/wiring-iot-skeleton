@@ -36,7 +36,8 @@
 SerialCommand*        sCmd = 0;
 #ifdef ESP8266
 WiFiClient*           wifiClient = 0;
-MqttClient*           mqttClient = 0;
+//MqttClient*           mqttClient = 0;
+PubSubClient*           mqttClient = 0;
 #endif
 
 class TestLedMqttMsgHandler : public MqttMsgHandler
@@ -46,33 +47,24 @@ public:
   : MqttMsgHandler(topic)
   { }
 
-  void handleMessage(const char* topic, unsigned char* payload, unsigned int length)
+  bool processMessage()
   {
-    if (isMyTopic(topic))
+    bool msgHasBeenHandled = false;
+
+    if (isMyTopic())
     {
       // take responsibility
-      char msg[length+1];
-      memcpy(msg, payload, length);
-      msg[length] = 0;
-
       Serial.print("LED test handler, topic: ");
       Serial.print(getTopic());
       Serial.print(", msg: ");
-      Serial.println(msg);
+      Serial.println(getRxMsg());
 
-      bool pinState = atoi(msg);
+      bool pinState = atoi(getRxMsg());
       digitalWrite(BUILTIN_LED, !pinState);
+
+      msgHasBeenHandled = true;
     }
-    else if (0 != next())
-    {
-      // delegate
-      Serial.println("LED test handler has to delegate the job.");
-      next()->handleMessage(topic, payload, length);
-    }
-    else
-    {
-      Serial.println("LED test handler is the last in the chain");
-    }
+    return msgHasBeenHandled;
   }
 
 private:
@@ -81,6 +73,59 @@ private:
   TestLedMqttMsgHandler& operator = (const TestLedMqttMsgHandler& src); // assignment operator
   TestLedMqttMsgHandler(const TestLedMqttMsgHandler& src);              // copy constructor
 };
+
+const byte ledPin = 0; // Pin with LED on Adafruit Huzzah
+
+void callback(char* topic, byte* payload, unsigned int length)
+{
+  Serial.print("Message arrived [");
+  Serial.print(topic);
+  Serial.print("] ");
+  for (int i = 0; i < length; i++)
+  {
+    char receivedChar = (char) payload[i];
+    Serial.print(receivedChar);
+    if (receivedChar == '0')
+    {
+      // ESP8266 Huzzah outputs are "reversed"
+      digitalWrite(BUILTIN_LED, HIGH);
+    }
+    if (receivedChar == '1')
+    {
+      digitalWrite(BUILTIN_LED, LOW);
+    }
+  }
+  Serial.println();
+}
+
+
+void reconnect()
+{
+  if (0 != mqttClient)
+  {
+    // Loop until we're reconnected
+    while (!mqttClient->connected())
+    {
+      yield();
+      Serial.print("Attempting MQTT connection...");
+      // Attempt to connect
+      if (mqttClient->connect("ESP8266 Client"))
+      {
+        Serial.println("connected");
+        // ... and subscribe to topic
+        mqttClient->subscribe("/test/led");
+      }
+      else
+      {
+        Serial.print("failed, rc=");
+        Serial.print(mqttClient->state());
+        Serial.println(" try again in 5 seconds");
+        // Wait 5 seconds before retrying
+        delay(5000);
+      }
+    }
+  }
+}
 
 void setup()
 {
@@ -102,8 +147,12 @@ void setup()
   //-----------------------------------------------------------------------------
   // MQTT Client
   //-----------------------------------------------------------------------------
-  mqttClient = new MqttClient(MQTT_SERVER);
-  mqttClient->subscribe(new TestLedMqttMsgHandler("/test/led"));
+  mqttClient = new PubSubClient(*(wifiClient));
+  mqttClient->setServer("iot.eclipse.org", 1883);
+  mqttClient->setCallback(callback);
+
+//  mqttClient = new MqttClient(MQTT_SERVER);
+//  mqttClient->subscribe(new TestLedMqttMsgHandler("/test/led"));
 #endif
 }
 
@@ -113,6 +162,13 @@ void loop()
   {
     sCmd->readSerial();     // process serial commands
   }
-  mqttClient->loop();
+  if (0 != mqttClient)
+  {
+    if (!mqttClient->connected())
+    {
+      reconnect();
+    }
+    mqttClient->loop();
+  }
   yield();                  // process Timers
 }
