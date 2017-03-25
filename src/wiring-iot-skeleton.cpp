@@ -24,20 +24,21 @@
 #include <DbgTraceOut.h>
 #include <DbgPrintConsole.h>
 #include <DbgTraceLevel.h>
-#include <ProductDebug.h>
 #include <MqttClient.h>
 #include <MqttClientController.h>
 #include <PubSubClientWrapper.h>
 #include <MqttTopic.h>
 #include <string.h>
+#include <AppDebug.h>
+#include <ProductDebug.h>
 
 #define MQTT_SERVER "iot.eclipse.org"
 
 SerialCommand*        sCmd = 0;
+
 #ifdef ESP8266
 WiFiClient*           wifiClient = 0;
 MqttClient*           mqttClient = 0;
-//PubSubClient*           mqttClient = 0;
 #endif
 
 class TestLedMqttSubscriber : public MqttTopicSubscriber
@@ -137,62 +138,13 @@ private:
 //-----------------------------------------------------------------------------
 const byte ledPin = 0; // Pin with LED on Adafruit Huzzah
 
-//void callback(char* topic, byte* payload, unsigned int length)
-//{
-//  Serial.print("Message arrived [");
-//  Serial.print(topic);
-//  Serial.print("] ");
-//  for (int i = 0; i < length; i++)
-//  {
-//    char receivedChar = (char) payload[i];
-//    Serial.print(receivedChar);
-//    if (receivedChar == '0')
-//    {
-//      // ESP8266 Huzzah outputs are "reversed"
-//      digitalWrite(BUILTIN_LED, HIGH);
-//    }
-//    if (receivedChar == '1')
-//    {
-//      digitalWrite(BUILTIN_LED, LOW);
-//    }
-//  }
-//  Serial.println();
-//}
-//
-//void reconnect()
-//{
-//  if (0 != mqttClient)
-//  {
-//    // Loop until we're reconnected
-//    while (!mqttClient->connected())
-//    {
-//      yield();
-//      Serial.print("Attempting MQTT connection...");
-//      // Attempt to connect
-//      if (mqttClient->connect("ESP8266 Client"))
-//      {
-//        Serial.println("connected");
-//        // ... and subscribe to topic
-//        mqttClient->subscribe("/test/led");
-//      }
-//      else
-//      {
-//        Serial.print("failed, rc=");
-//        Serial.print(mqttClient->state());
-//        Serial.println(" try again in 5 seconds");
-//        // Wait 5 seconds before retrying
-//        delay(5000);
-//      }
-//    }
-//  }
-//}
-
 void setup()
 {
   pinMode(BUILTIN_LED, OUTPUT);
   digitalWrite(BUILTIN_LED, 1);
 
-  setupDebugEnv();
+  setupProdDebugEnv();
+
 #ifdef ESP8266
   //-----------------------------------------------------------------------------
   // ESP8266 WiFi Client
@@ -207,10 +159,6 @@ void setup()
   //-----------------------------------------------------------------------------
   // MQTT Client
   //-----------------------------------------------------------------------------
-//  mqttClient = new PubSubClient(*(wifiClient));
-//  mqttClient->setServer("iot.eclipse.org", 1883);
-//  mqttClient->setCallback(callback);
-
   mqttClient = new MqttClient(MQTT_SERVER);
   mqttClient->subscribe(new TestLedMqttSubscriber("/test/led"));
   mqttClient->subscribe(new TestDiniMqttSubscriber());
@@ -225,10 +173,6 @@ void loop()
   }
   if (0 != mqttClient)
   {
-//    if (!mqttClient->connected())
-//    {
-//      reconnect();
-//    }
     mqttClient->loop();
   }
   yield();                  // process Timers
