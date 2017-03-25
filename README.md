@@ -12,8 +12,10 @@ The command line interface provides the following functionality:
 * [ThingSpeak](http://thingspeak.com) features:
   * setup a  channel to be written to later on (ChID & API Key)
   * set ThingSpeak channel data fields (1..8) and write the data to the channel
-
-(Planned: MQTT features)
+* MQTT features:
+  * connect to / disconnect from a broker (currently using io.eclipse.org)
+  * subscribe / unsubscribe to / from MQTT Topics
+  * publish to MQTT Topics
 
 This skeleton application can help you to build up your own Arduino Framework based applications with focus on IoT. 
 
@@ -22,7 +24,9 @@ It demonstrates the usage of the following copmonents:
 * [Timer](https://github.com/dniklaus/arduino-utils-timer)
 * [Debug-Cli](https://github.com/ERNICommunity/debug-cli)
 * [Dbg-Trace](https://github.com/ERNICommunity/dbg-trace)
+* [Mqtt-Client](https://github.com/ERNICommunity/mqtt-client)
 * [ThingSpeak](https://github.com/mathworks/thingspeak-particle)
+* [PubSubClient](https://github.com/knolleary)
 
 ## How to build for Eclipse CDT
   1. Create a directory where your Eclipse Workspace will be stored and where this project shall be cloned into. E.g. `C:\git\pio-prj`
@@ -53,11 +57,21 @@ Load the _hterm-com18.cfg_ file to configure HTerm properly. Alter the COM18 acc
              get              Show the current trace level
              set <level>      Set a particular trace level
              list             Show all available trace levels (and the currenntly selected)
+         lanmon               Trace Port: LAN connection monitor                
+         mqttctrl             Trace Port: MQTT client control
+         mqttrx               Trace Port: Received Messages from MQTT subscriptions 
        wifi                   WiFi debug commands
          mac                  show WiFi MAC address
+         nets                 list available WLAN networks
          stat                 Show WiFi status
          dis                  Disconnect WiFi
          con <SSID> <Pass>    Connect WiFi
+       mqtt                   MQTT client control commands
+         con                  Connect to broker
+         dis                  Disconnect from broker
+         sub <Topic>          Subscribe to MQTT Topic
+         unsub <Topic>        Unsubscribe to MQTT Topic
+         pub <Topic> <Value>  Publish Value to MQTT Topic
        thgspk                 ThingSpeak debug commands
          chid <channelId>     Set ThingSpeak Channel ID.
          key <APIKey>         Set ThingSpeak API key.
@@ -75,6 +89,9 @@ Load the _hterm-com18.cfg_ file to configure HTerm properly. Alter the COM18 acc
 |Trace Port|default level|functionality|
 |----------|-------------|:------------|
 |heap|info|if set to debug level: automatically print free heap memory [bytes], every 10 seconds|
+|lanmon|info|if set to debug level: show WLAN connect / disconnect status updates|
+|mqttctrl|info|if set to debug: show MQTT Client connection status|
+|mqttrx|info|if set to degug level: show subscribed incoming messages|
 
 ## Library Usage
 This chapter lists all the libraries this project is using.
@@ -84,6 +101,7 @@ This chapter lists all the libraries this project is using.
 |:--|:-------|:----------------|:-----------------------|
 |173|SerialCommand|https://github.com/kroimon/Arduino-SerialCommand|A Wiring/Arduino library to tokenize and parse commands received over a serial port.|
 |550|ThingSpeak|https://github.com/mathworks/thingspeak-particle|"MathWorks": ThingSpeak Communication Library for Arduino & ESP8266|
+|89|PubSubClient|https://github.com/knolleary|A client library for MQTT messaging.|
 
 
 ### Homebrew Libraries
@@ -92,5 +110,6 @@ This chapter lists all the libraries this project is using.
 |Timer|https://github.com/dniklaus/arduino-utils-timer|Universal recurring or non-recurring Timer|
 |Debug-Cli|https://github.com/ERNICommunity/debug-cli|Debug CLI for Embedded Applications - Command Line  Interface for debugging and testing based on object oriented tree structure.|
 |Dbg-Trace|https://github.com/ERNICommunity/dbg-trace|Debug Trace component for Embedded Applications - Debug and Trace Log message system based on trace ports with adjustable levels.|
+|Mqtt-Client|https://github.com/ERNICommunity/mqtt-client|MQTT Client with pluggable publish and subscribe topic objects|
 |RamUtils|https://github.com/dniklaus/arduino-utils-mem|Arduino Memory Utilities|
 

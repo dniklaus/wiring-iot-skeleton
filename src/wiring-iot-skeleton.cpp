@@ -8,6 +8,7 @@
 #include <Arduino.h>
 #ifdef ESP8266
 #include <ESP8266WiFi.h>
+#include <WiFiClient.h>
 #endif
 // PlatformIO libraries
 #include <PubSubClient.h>   // pio lib install 89,  lib details see https://github.com/knolleary/PubSubClient
@@ -23,18 +24,127 @@
 #include <DbgTraceOut.h>
 #include <DbgPrintConsole.h>
 #include <DbgTraceLevel.h>
-#include <ProductDebug.h>
+#include <MqttClient.h>
 #include <MqttClientController.h>
+#include <PubSubClientWrapper.h>
+#include <MqttTopic.h>
+#include <string.h>
+#include <AppDebug.h>
+#include <ProductDebug.h>
 
-#define MQTT_SERVER  "iot.eclipse.org"
+#define MQTT_SERVER "iot.eclipse.org"
 
 SerialCommand*        sCmd = 0;
+
+#ifdef ESP8266
 WiFiClient*           wifiClient = 0;
-MqttClientController* mqttClientCtrl = 0;
+MqttClient*           mqttClient = 0;
+#endif
+
+class TestLedMqttSubscriber : public MqttTopicSubscriber
+{
+public:
+  TestLedMqttSubscriber(const char* topic)
+  : MqttTopicSubscriber(topic)
+  { }
+
+  bool processMessage()
+  {
+    bool msgHasBeenHandled = false;
+    MqttRxMsg* rxMsg = getRxMsg();
+    Serial.print("TestLedMqttSubscriber, ");
+    Serial.print("isMyTopic(): ");
+
+    if (isMyTopic())
+    {
+      Serial.print("true");
+      if (0 != rxMsg)
+      {
+        // take responsibility
+        Serial.print(", pin state: ");
+        bool pinState = atoi(rxMsg->getRxMsg());
+        Serial.println(pinState);
+        digitalWrite(BUILTIN_LED, !pinState);  // LED state is inverted on ESP8266
+        msgHasBeenHandled = true;
+      }
+      else
+      {
+        Serial.println("ERROR: rxMsg unavailable!");
+      }
+    }
+    else
+    {
+      Serial.println("false");
+    }
+    return msgHasBeenHandled;
+  }
+
+private:
+  // forbidden default functions
+  TestLedMqttSubscriber();                                              // default constructor
+  TestLedMqttSubscriber& operator = (const TestLedMqttSubscriber& src); // assignment operator
+  TestLedMqttSubscriber(const TestLedMqttSubscriber& src);              // copy constructor
+};
+
+//-----------------------------------------------------------------------------
+
+class TestDiniMqttSubscriber : public MqttTopicSubscriber
+{
+public:
+  TestDiniMqttSubscriber()
+  : MqttTopicSubscriber("/test/dini")
+  { }
+
+  bool processMessage()
+  {
+    bool msgHasBeenHandled = false;
+    MqttRxMsg* rxMsg = getRxMsg();
+    if (isMyTopic())
+    {
+      if (0 != rxMsg)
+      {
+        // take responsibility
+        Serial.print("TestDiniMqttSubscriber, rxMsg: ");
+        Serial.print("isMyTopic(): ");
+        if (isMyTopic())
+        {
+          Serial.print("true");
+          if (0 != rxMsg)
+          {
+            Serial.print(", rx msg: ");
+            Serial.println(rxMsg->getRxMsg());
+            msgHasBeenHandled = true;
+          }
+          else
+          {
+            Serial.println("ERROR: rxMsg unavailable!");
+          }
+        }
+        else
+        {
+          Serial.println("false");
+        }
+      }
+    }
+    return msgHasBeenHandled;
+  }
+
+private:
+  // forbidden default functions
+  TestDiniMqttSubscriber& operator = (const TestDiniMqttSubscriber& src); // assignment operator
+  TestDiniMqttSubscriber(const TestDiniMqttSubscriber& src);              // copy constructor
+};
+
+//-----------------------------------------------------------------------------
+const byte ledPin = 0; // Pin with LED on Adafruit Huzzah
 
 void setup()
 {
-  setupDebugEnv();
+  pinMode(BUILTIN_LED, OUTPUT);
+  digitalWrite(BUILTIN_LED, 1);
+
+  setupProdDebugEnv();
+
 #ifdef ESP8266
   //-----------------------------------------------------------------------------
   // ESP8266 WiFi Client
@@ -49,8 +159,9 @@ void setup()
   //-----------------------------------------------------------------------------
   // MQTT Client
   //-----------------------------------------------------------------------------
-  mqttClientCtrl = new MqttClientController(wifiClient, MQTT_SERVER);
-  mqttClientCtrl->setShallConnect(true);
+  mqttClient = new MqttClient(MQTT_SERVER);
+  mqttClient->subscribe(new TestLedMqttSubscriber("/test/led"));
+  mqttClient->subscribe(new TestDiniMqttSubscriber());
 #endif
 }
 
@@ -60,6 +171,9 @@ void loop()
   {
     sCmd->readSerial();     // process serial commands
   }
-  mqttClientCtrl->loop();
+  if (0 != mqttClient)
+  {
+    mqttClient->loop();
+  }
   yield();                  // process Timers
 }

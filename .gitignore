@@ -31,3 +31,5 @@
 /.project
 /.settings
 /.pioenvs
+.pioenvs
+.piolibdeps
