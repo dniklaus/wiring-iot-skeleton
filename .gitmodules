@@ -13,3 +13,6 @@
 [submodule "lib/app-debug"]
 	path = lib/app-debug
 	url = https://github.com/dniklaus/wiring-app-debug.git
+[submodule "lib/mqtt-client"]
+	path = lib/mqtt-client
+	url = https://github.com/dniklaus/mqtt-client.git

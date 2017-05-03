@@ -44,8 +44,8 @@ MqttClient*           mqttClient = 0;
 class TestLedMqttSubscriber : public MqttTopicSubscriber
 {
 public:
-  TestLedMqttSubscriber(const char* topic)
-  : MqttTopicSubscriber(topic)
+  TestLedMqttSubscriber()
+  : MqttTopicSubscriber("test/led")
   { }
 
   bool processMessage()
@@ -62,7 +62,7 @@ public:
       {
         // take responsibility
         Serial.print(", pin state: ");
-        bool pinState = atoi(rxMsg->getRxMsg());
+        bool pinState = atoi(rxMsg->getRxMsgString());
         Serial.println(pinState);
         digitalWrite(BUILTIN_LED, !pinState);  // LED state is inverted on ESP8266
         msgHasBeenHandled = true;
@@ -81,61 +81,12 @@ public:
 
 private:
   // forbidden default functions
-  TestLedMqttSubscriber();                                              // default constructor
   TestLedMqttSubscriber& operator = (const TestLedMqttSubscriber& src); // assignment operator
   TestLedMqttSubscriber(const TestLedMqttSubscriber& src);              // copy constructor
 };
 
 //-----------------------------------------------------------------------------
 
-class TestDiniMqttSubscriber : public MqttTopicSubscriber
-{
-public:
-  TestDiniMqttSubscriber()
-  : MqttTopicSubscriber("/test/dini")
-  { }
-
-  bool processMessage()
-  {
-    bool msgHasBeenHandled = false;
-    MqttRxMsg* rxMsg = getRxMsg();
-    if (isMyTopic())
-    {
-      if (0 != rxMsg)
-      {
-        // take responsibility
-        Serial.print("TestDiniMqttSubscriber, rxMsg: ");
-        Serial.print("isMyTopic(): ");
-        if (isMyTopic())
-        {
-          Serial.print("true");
-          if (0 != rxMsg)
-          {
-            Serial.print(", rx msg: ");
-            Serial.println(rxMsg->getRxMsg());
-            msgHasBeenHandled = true;
-          }
-          else
-          {
-            Serial.println("ERROR: rxMsg unavailable!");
-          }
-        }
-        else
-        {
-          Serial.println("false");
-        }
-      }
-    }
-    return msgHasBeenHandled;
-  }
-
-private:
-  // forbidden default functions
-  TestDiniMqttSubscriber& operator = (const TestDiniMqttSubscriber& src); // assignment operator
-  TestDiniMqttSubscriber(const TestDiniMqttSubscriber& src);              // copy constructor
-};
-
-//-----------------------------------------------------------------------------
 const byte ledPin = 0; // Pin with LED on Adafruit Huzzah
 
 void setup()
@@ -160,8 +111,9 @@ void setup()
   // MQTT Client
   //-----------------------------------------------------------------------------
   mqttClient = new MqttClient(MQTT_SERVER);
-  mqttClient->subscribe(new TestLedMqttSubscriber("/test/led"));
-  mqttClient->subscribe(new TestDiniMqttSubscriber());
+  mqttClient->subscribe(new TestLedMqttSubscriber());
+  mqttClient->subscribe(new DefaultMqttSubscriber("test/startup"));
+  mqttClient->installAutoPublisher(new MqttTopicPublisher("test/startup", WiFi.macAddress().c_str(), true));
 #endif
 }
 
