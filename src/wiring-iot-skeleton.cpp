@@ -90,8 +90,6 @@ private:
 
 //-----------------------------------------------------------------------------
 
-const byte ledPin = 0; // Pin with LED on Adafruit Huzzah
-
 void setup()
 {
   pinMode(BUILTIN_LED, OUTPUT);
