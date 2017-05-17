@@ -79,10 +79,6 @@ public:
         TR_PRINTF(m_trPort, DbgTrace_Level::error, "rxMsg unavailable!");
       }
     }
-    else
-    {
-      Serial.println("false");
-    }
     return msgHasBeenHandled;
   }
 
@@ -119,7 +115,7 @@ void setup()
   //-----------------------------------------------------------------------------
   mqttClient = new MqttClient(MQTT_SERVER);
   mqttClient->subscribe(new TestLedMqttSubscriber());
-  mqttClient->subscribe(new DefaultMqttSubscriber("test/startup"));
+  mqttClient->subscribe(new DefaultMqttSubscriber("test/startup/#"));
   mqttClient->installAutoPublisher(new MqttTopicPublisher("test/startup", WiFi.macAddress().c_str(), true));
 #endif
 }
